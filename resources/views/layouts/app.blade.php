@@ -21,9 +21,9 @@
 
         <div class="collapse navbar-collapse" id="nav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link">Books</a></li>
-                <li class="nav-item"><a class="nav-link">Authors</a></li>
-                <li class="nav-item"><a class="nav-link">Categories</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('books.index') }}">Books</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('authors.index') }}">Authors</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('categories.index') }}">Categories</a></li>
             </ul>
         </div>
     </div>
