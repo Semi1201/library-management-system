@@ -11,14 +11,40 @@ use Illuminate\Support\Str;
 class BookController extends Controller
 {
     public function index(Request $request)
-    {   //add sorting<<<<<<<<<<<<<<<<<<<<<<<<<
-        $books = Book::with(['author', 'category'])
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+    {
+        $q = $request->query('q');
+        $authorId = $request->query('author_id');
+        $categoryId = $request->query('category_id');
+        $sort = $request->query('sort', 'newest'); // default
 
-        return view('books.index', compact('books'));
+        $booksQuery = Book::with(['author', 'category'])
+            ->when($q, fn($query) =>
+                $query->where('title', 'like', "%{$q}%")
+            )
+            ->when($authorId, fn($query) =>
+                $query->where('author_id', $authorId)
+            )
+            ->when($categoryId, fn($query) =>
+                $query->where('category_id', $categoryId)
+            );
+
+        // Sorting
+        $booksQuery = match ($sort) {
+            'title_asc'  => $booksQuery->orderBy('title', 'asc'),
+            'title_desc' => $booksQuery->orderBy('title', 'desc'),
+            'year_desc'  => $booksQuery->orderBy('published_year', 'desc'),
+            'year_asc'   => $booksQuery->orderBy('published_year', 'asc'),
+            default      => $booksQuery->orderBy('created_at', 'desc'),
+        };
+
+        $books = $booksQuery->paginate(10)->withQueryString();
+
+        $authors = Author::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
+
+        return view('books.index', compact('books', 'authors', 'categories', 'q', 'authorId', 'categoryId', 'sort'));
     }
+
 
     public function create()
     {
