@@ -1,5 +1,7 @@
 @csrf
 
+<div id="isbnAlert" class="alert d-none" role="alert"></div>
+
 <div class="mb-3">
     <label class="form-label">Title</label>
     <input name="title" class="form-control @error('title') is-invalid @enderror"
@@ -40,10 +42,19 @@
 <div class="row">
     <div class="col-md-6 mb-3">
         <label class="form-label">ISBN</label>
-        <input name="isbn" class="form-control @error('isbn') is-invalid @enderror"
-               value="{{ old('isbn', $book->isbn ?? '') }}">
-        @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+        <div class="input-group">
+            <input id="isbnInput" name="isbn" class="form-control @error('isbn') is-invalid @enderror"
+                value="{{ old('isbn', $book->isbn ?? '') }}" placeholder="e.g. 9780261103344">
+
+            <button class="btn btn-outline-primary" type="button" id="isbnFetchBtn">
+                Fetch
+            </button>
+        </div>
+
+        @error('isbn') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
     </div>
+
 
     <div class="col-md-6 mb-3">
         <label class="form-label">Published Year</label>

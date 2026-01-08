@@ -7,6 +7,9 @@ use App\Models\Book;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\GoogleBooksService;
+use Illuminate\Support\Facades\Validator;
+
 
 class BookController extends Controller
 {
@@ -132,5 +135,38 @@ class BookController extends Controller
     {
         $book->delete();
         return redirect()->route('books.index')->with('success', 'Book deleted successfully.');
+    }
+
+    public function isbnLookup(Request $request, GoogleBooksService $googleBooks)
+    {
+        // Basic local validation first
+        $validator = Validator::make($request->all(), [
+            'isbn' => ['required', 'string', 'max:20'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Please enter an ISBN first.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $isbn = $request->input('isbn');
+
+        $result = $googleBooks->lookupByIsbn($isbn);
+
+        if (!$result) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'ISBN not found on Google Books (or the API is unavailable).',
+            ], 404);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Book details fetched successfully.',
+            'data' => $result,
+        ]);
     }
 }

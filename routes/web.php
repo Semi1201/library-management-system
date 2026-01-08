@@ -9,6 +9,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/books/isbn-lookup', [BookController::class, 'isbnLookup'])
+    ->name('books.isbnLookup');
+
 Route::resource('books', BookController::class);
 Route::resource('authors', AuthorController::class);
 Route::resource('categories', CategoryController::class);
